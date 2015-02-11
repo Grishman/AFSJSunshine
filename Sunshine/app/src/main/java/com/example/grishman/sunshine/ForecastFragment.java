@@ -39,7 +39,8 @@ import java.util.List;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
-
+    // Global variable
+    ArrayAdapter<String> mforecastAdapter= null;
     public ForecastFragment() {
     }
 
@@ -71,8 +72,7 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Global variable
-        ArrayAdapter<String> forecastAdapter= null;
+
 // Create some dummy data for the ListView. Here's a sample weekly forecast
         String[] data = {
                 "Mon 6/23 - Sunny - 31/17",
@@ -87,7 +87,7 @@ public class ForecastFragment extends Fragment {
 // Now that we have some dummy forecast data, create an ArrayAdapter.
 // The ArrayAdapter will take data from a source (like our dummy forecast) and
 // use it to populate the ListView it's attached to.
-        forecastAdapter =
+        mforecastAdapter =
                 new ArrayAdapter<String>(
                         getActivity(), // The current context (this activity)
                         R.layout.list_item_forecast, // The name of the layout ID.
@@ -96,16 +96,27 @@ public class ForecastFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(forecastAdapter);
+        listView.setAdapter(mforecastAdapter);
         return rootView;
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
+        @Override
+        protected void onPostExecute(String[] strings) {
+            if (strings != null) {
+                mforecastAdapter.clear();
+                for(String dayForecastStr : strings) {
+                    mforecastAdapter.add(dayForecastStr);
+                }
+
+            }
+        }
+
         /* The date/time conversion code is going to be moved outside the asynctask later,
-* so for convenience we're breaking it out into its own method now.
-*/
+        * so for convenience we're breaking it out into its own method now.
+        */
         private String getReadableDateString(long time) {
 // Because the API returns a unix timestamp (measured in seconds),
 // it must be converted to milliseconds in order to be converted to valid date.
