@@ -7,6 +7,7 @@ package com.example.grishman.sunshine;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,17 +16,27 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.content.CursorLoader;
 
 import com.example.grishman.sunshine.data.WeatherContract;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ForecastFragment extends Fragment {
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     // Global variable
     private ForecastAdapter mforecastAdapter = null;
+    private static int LOADER_ID = 1;
 
     public ForecastFragment() {
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -68,24 +79,40 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        String locationSetting = Utility.getPreferredLocation(getActivity());
+        mforecastAdapter = new ForecastAdapter(getActivity(), null, 0);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        // Get a reference to the ListView, and attach this adapter to it.
+        final ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        listView.setAdapter(mforecastAdapter);
+        return rootView;
+    }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String locationSetting = Utility.getPreferredLocation(getActivity());
         // Sort order:  Ascending, by date.
         String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
         Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
                 locationSetting, System.currentTimeMillis());
 
-        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
-                null, null, null, sortOrder);
-//// Now that we have some dummy forecast data, create an ArrayAdapter.
-//// The ArrayAdapter will take data from a source (like our dummy forecast) and
-//// use it to populate the ListView it's attached to.
-        mforecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-// Get a reference to the ListView, and attach this adapter to it.
-        final ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(mforecastAdapter);
-        return rootView;
+//        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
+//                null, null, null, sortOrder);
+        return new CursorLoader(getActivity(),
+                weatherForLocationUri,
+                null,
+                null,
+                null,
+                sortOrder);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mforecastAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mforecastAdapter.swapCursor(null);
     }
 
 }
