@@ -105,7 +105,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onStart() {
         super.onStart();
-        updateWeather();
+        //updateWeather();
     }
 
     @Override
@@ -164,6 +164,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mforecastAdapter.swapCursor(null);
     }
 
+    public void onLocationChanged() {
+        updateWeather();
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
+    }
 }
 
 

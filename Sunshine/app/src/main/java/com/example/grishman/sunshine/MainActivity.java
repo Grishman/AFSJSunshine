@@ -28,17 +28,35 @@ import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static final String LOG_TAG ="LOLCA" ;
+    private static final String LOG_TAG = "LOLCA";
+    private final String FORECASTFRAGMENT_TAG = "FFTAG";
+    private String mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
                     .commit();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String location = Utility.getPreferredLocation( this );
+// update the location in our second pane using the fragment manager
+        if (location != null && !location.equals(mLocation)) {
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+            if ( null != ff ) {
+                ff.onLocationChanged();
+            }
+            mLocation = location;
+        }
+
     }
 
 
@@ -46,7 +64,7 @@ public class MainActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
-       // getMenuInflater().inflate(R.menu.forecastfragment, menu);
+        // getMenuInflater().inflate(R.menu.forecastfragment, menu);
         return true;
     }
 
@@ -62,7 +80,7 @@ public class MainActivity extends ActionBarActivity {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
-        if (id==R.id.action_preferedlocation){
+        if (id == R.id.action_preferedlocation) {
             Uri geoLoc = Uri.parse("geo:47.6,-122.3");
             showMap();
             return true;
@@ -70,6 +88,7 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
     public void showMap() {
         String location = Utility.getPreferredLocation(this);
 // Using the URI scheme for showing a location found on a map. This super-handy
