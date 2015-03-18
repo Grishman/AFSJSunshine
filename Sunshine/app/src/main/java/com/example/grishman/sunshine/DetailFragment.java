@@ -4,14 +4,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,7 +26,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private static final Object FORECAST_SHARE_HASHTAG = "#GrishmanRules";
     private static final String LOG_TAG = "Details Share";
-    public static String DETAIL_URI="URI";
+    public static String DETAIL_URI = "URI";
     private String mForecastStr;
     ShareActionProvider mShareActionProvider;
     private static int DETAILS_LOADER_ID = 2;
@@ -79,6 +77,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
+        }
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         mIconView = (ImageView) rootView.findViewById(R.id.detail_icon);
         mDateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
@@ -94,18 +96,19 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-// Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.details, menu);
-// Retrieve the share menu item
+        // Retrieve the share menu item
         MenuItem menuItem = menu.findItem(R.id.menu_item_share);
-// Get the provider and hold onto it to set/change the share intent.
+        // Get the provider and hold onto it to set/change the share intent.
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-// If onLoadFinished happens before this, we can go ahead and set the share intent now.
+        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
         if (mForecastStr != null) {
             mShareActionProvider.setShareIntent(createShareForecastIntent());
         }
     }
-    void onLocationChanged( String newLocation ) {
+
+    void onLocationChanged(String newLocation) {
         // replace the uri, since the location has changed
         Uri uri = mUri;
         if (null != uri) {
@@ -115,6 +118,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             getLoaderManager().restartLoader(DETAILS_LOADER_ID, null, this);
         }
     }
+
     private Intent createShareForecastIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -131,12 +135,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if ( null != mUri ) {
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
+        if (null != mUri) {
+            // Now create and return a CursorLoader that will take care of
+            // creating a Cursor for the data being displayed.
             return new CursorLoader(
                     getActivity(),
-                    intent.getData(),
+                    mUri,
                     DETAILS_COLUMNS,
                     null,
                     null,

@@ -131,7 +131,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                                             .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                                                     locationSetting, cursor.getLong(COL_WEATHER_DATE)
                                             ));
-                    startActivity(intent);
+//                    startActivity(intent);
                 }
             }
         });
