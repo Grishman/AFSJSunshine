@@ -64,6 +64,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_COORD_LAT = 7;
     static final int COL_COORD_LONG = 8;
     private ListView mlistView;
+    private boolean mUseTodayLayout;
 
     public ForecastFragment() {
     }
@@ -151,7 +152,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             // swapout in onLoadFinished.
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
-
+        mforecastAdapter.setUseTodayLayout(mUseTodayLayout);
         return rootView;
     }
 
@@ -203,6 +204,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
          * DetailFragmentCallback for when an item has been selected.
          */
         public void onItemSelected(Uri dateUri);
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout) {
+        mUseTodayLayout = useTodayLayout;
+        if (mforecastAdapter != null) {
+            mforecastAdapter.setUseTodayLayout(mUseTodayLayout);
+        }
     }
 }
 
