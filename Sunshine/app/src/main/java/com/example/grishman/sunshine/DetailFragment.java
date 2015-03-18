@@ -2,6 +2,7 @@ package com.example.grishman.sunshine;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -27,6 +28,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private static final Object FORECAST_SHARE_HASHTAG = "#GrishmanRules";
     private static final String LOG_TAG = "Details Share";
+    public static String DETAIL_URI="URI";
     private String mForecastStr;
     ShareActionProvider mShareActionProvider;
     private static int DETAILS_LOADER_ID = 2;
@@ -68,6 +70,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mHumidityView;
     private TextView mWindView;
     private TextView mPressureView;
+    private Uri mUri;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -102,7 +105,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mShareActionProvider.setShareIntent(createShareForecastIntent());
         }
     }
-
+    void onLocationChanged( String newLocation ) {
+        // replace the uri, since the location has changed
+        Uri uri = mUri;
+        if (null != uri) {
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            mUri = updatedUri;
+            getLoaderManager().restartLoader(DETAILS_LOADER_ID, null, this);
+        }
+    }
     private Intent createShareForecastIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -119,21 +131,19 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.v(LOG_TAG, "In onCreateLoader");
-        Intent intent = getActivity().getIntent();
-        if (intent == null || intent.data() == null) {
-            return null;
+        if ( null != mUri ) {
+        // Now create and return a CursorLoader that will take care of
+        // creating a Cursor for the data being displayed.
+            return new CursorLoader(
+                    getActivity(),
+                    intent.getData(),
+                    DETAILS_COLUMNS,
+                    null,
+                    null,
+                    null
+            );
         }
-// Now create and return a CursorLoader that will take care of
-// creating a Cursor for the data being displayed.
-        return new CursorLoader(
-                getActivity(),
-                intent.getData(),
-                DETAILS_COLUMNS,
-                null,
-                null,
-                null
-        );
+        return null;
     }
 
     @Override

@@ -10,6 +10,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,9 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.content.CursorLoader;
 
 import com.example.grishman.sunshine.data.WeatherContract;
 
@@ -125,10 +125,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
-                    Intent intent = new Intent(getActivity(), DetailsActivity.class)
-                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)
-                            ));
+//                    Intent intent = new Intent(getActivity(), DetailsActivity.class)
+//                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                    ((Callback) getActivity())
+                                            .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)
+                                            ));
                     startActivity(intent);
                 }
             }
@@ -168,6 +170,19 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         updateWeather();
         getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri dateUri);
+    }
 }
+
 
 
