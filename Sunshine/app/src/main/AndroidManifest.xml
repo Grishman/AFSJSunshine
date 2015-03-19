@@ -13,6 +13,7 @@
             android:name="com.example.grishman.sunshine.data.WeatherProvider"
             android:authorities="com.example.grishman.sunshine" />
         <service android:name=".service.SunshineService" />
+        <receiver android:name=".service.SunshineService$AlarmReceiver" android:enabled="true"/>
 
         <activity
             android:name=".MainActivity"
