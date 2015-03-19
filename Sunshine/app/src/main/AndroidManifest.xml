@@ -42,7 +42,7 @@
             android:name=".SettingsActivity"
             android:label="@string/settings_activity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/SettingsTheme">>
+            android:theme="@style/SettingsTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.grishman.sunshine.MainActivity" />
