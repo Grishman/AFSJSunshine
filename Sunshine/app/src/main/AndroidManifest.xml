@@ -12,11 +12,12 @@
         <provider
             android:name="com.example.grishman.sunshine.data.WeatherProvider"
             android:authorities="com.example.grishman.sunshine" />
+        <service android:name=".service.SunshineService" />
 
         <activity
             android:name=".MainActivity"
-            android:theme="@style/ForecastTheme"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:theme="@style/ForecastTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
